@@ -43,7 +43,7 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-  void _saveFile() {
+  Future<void> _saveFile() async {
     List<int> htmlBytes =
         utf8.encode("<h1>Header 1</h1><p>This is sample text</p>");
     List<int> textBytes = utf8.encode("Some data");
@@ -55,7 +55,10 @@ class _MyAppState extends State<MyApp> {
       dataList: [htmlBytes1, textBytes1],
       fileNameList: ["htmlfile.html", "textfile.txt"],
       mimeTypeList: ["text/html", "text/plain"],
-    );
+    ).then((value){
+      print("lemon : $value");
+    });
+
 
     // save multiple files (case that file have same name). system will automatically append number to filename.
     //DocumentFileSave.saveMultipleFiles([htmlBytes, textBytes], ["file.txt", "file.txt"], ["text/html", "text/plain"]);

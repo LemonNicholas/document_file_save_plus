@@ -34,7 +34,7 @@ abstract class DocumentFileSavePlusPlatform extends PlatformInterface {
     throw UnimplementedError('batteryPercentage() has not been implemented.');
   }
 
-  Future<void> saveMultipleFiles({
+  Future<String?> saveMultipleFiles({
     List<Uint8List>? dataList,
     required List<String> fileNameList,
     required List<String> mimeTypeList,

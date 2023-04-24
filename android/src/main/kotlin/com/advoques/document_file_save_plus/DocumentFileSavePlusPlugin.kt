@@ -1,11 +1,14 @@
 package com.advoques.document_file_save_plus
 
 import android.Manifest
-import android.R.attr
 import android.app.Activity
+import android.app.DownloadManager
 import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.database.Cursor
+import android.net.Uri
 import android.os.BatteryManager
 import android.os.Build
 import android.os.Environment
@@ -15,7 +18,7 @@ import android.provider.MediaStore
 import android.util.Log
 import androidx.annotation.NonNull
 import androidx.core.app.ActivityCompat
-
+import androidx.core.content.ContextCompat.startActivity
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -68,7 +71,6 @@ class DocumentFileSavePlusPlugin: FlutterPlugin, MethodCallHandler, ActivityAwar
         val fileNameList: List<String> = call.argument("fileNameList")!!
         val mimeTypeList: List<String> = call.argument("mimeTypeList")!!
         saveMultipleFiles(dataList, fileNameList, mimeTypeList)
-        result.success(null)
       } else {
         ActivityCompat.requestPermissions(currentActivity!!, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), REQ_CODE)
       }
@@ -85,6 +87,7 @@ class DocumentFileSavePlusPlugin: FlutterPlugin, MethodCallHandler, ActivityAwar
   private fun saveMultipleFiles(dataList: List<ByteArray>, fileNameList: List<String>, mimeTypeList: List<String>) {
     val length = dataList.count()
 
+    var filePath : String? = null
     for (i in 0 until length) {
       val data = dataList[i]
       val fileName = fileNameList[i]
@@ -113,14 +116,39 @@ class DocumentFileSavePlusPlugin: FlutterPlugin, MethodCallHandler, ActivityAwar
           values.put(MediaStore.Downloads.IS_PENDING, 0)
           resolver.update(itemUri, values, null, null)
         }
+        filePath = getFilePathFromUri(itemUri)
+//        Log.wtf(DocumentFileSavePlusPlugin::class.java.simpleName, "itemUri : ${getFilePathFromUri(itemUri)}")
       } else {
         Log.i("advoques", "save file using getExternalStoragePublicDirectory")
         val file = File(Environment.getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS), fileName)
         val fos = FileOutputStream(file)
         fos.write(data)
         fos.close()
+        filePath = file.path
       }
     }
+    Log.wtf(DocumentFileSavePlusPlugin::class.java.simpleName, "result : $result ; itemUri : $filePath")
+    result?.success(filePath)
+
+    val intent = Intent(DownloadManager.ACTION_VIEW_DOWNLOADS)
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    context.startActivity(intent)
+
+//    startActivity(context,Intent(DownloadManager.ACTION_VIEW_DOWNLOADS),null)
+
+  }
+
+  fun getFilePathFromUri(uri: Uri?): String? {
+    if(uri == null) return "";
+    var filePath: String? = null
+    val projection = arrayOf(MediaStore.Images.Media.DATA)
+    val cursor: Cursor? = context.contentResolver.query(uri, projection, null, null, null)
+    if (cursor != null && cursor.moveToFirst()) {
+      val columnIndex: Int = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+      filePath = cursor.getString(columnIndex)
+      cursor.close()
+    }
+    return filePath
   }
 
   override fun onRequestPermissionsResult(

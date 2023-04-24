@@ -18,24 +18,24 @@ class DocumentFileSavePlus {
     return DocumentFileSavePlusPlatform.instance.batteryPercentage;
   }
 
-  Future<void> saveMultipleFiles({
+  Future<String?> saveMultipleFiles({
     List<Uint8List>? dataList,
     required List<String> fileNameList,
     required List<String> mimeTypeList,
   }) async {
-    return DocumentFileSavePlusPlatform.instance.saveMultipleFiles(
+    return await DocumentFileSavePlusPlatform.instance.saveMultipleFiles(
       dataList: dataList,
       fileNameList: fileNameList,
       mimeTypeList: mimeTypeList,
     );
   }
 
-  Future<void> saveFile(
+  Future<String?> saveFile(
     Uint8List data,
     String fileName,
     String mimeType,
   ) async {
-    return DocumentFileSavePlusPlatform.instance.saveMultipleFiles(
+    return await DocumentFileSavePlusPlatform.instance.saveMultipleFiles(
       dataList: [data],
       fileNameList: [fileName],
       mimeTypeList: [mimeType],

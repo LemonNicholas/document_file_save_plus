@@ -20,7 +20,7 @@ class MethodChannelDocumentFileSavePlus extends DocumentFileSavePlusPlatform {
   }
 
   @override
-  Future<void> saveMultipleFiles({
+  Future<String?> saveMultipleFiles({
     List<Uint8List>? dataList,
     required List<String> fileNameList,
     required List<String> mimeTypeList,
@@ -68,11 +68,12 @@ class MethodChannelDocumentFileSavePlus extends DocumentFileSavePlusPlatform {
     }
 
     try {
-      await methodChannel.invokeMethod('saveMultipleFiles', {
+      var filePath = await methodChannel.invokeMethod('saveMultipleFiles', {
         "dataList": dataList,
         "fileNameList": fileNameList,
         "mimeTypeList": mimeTypeList
       });
+      return filePath;
     } on PlatformException {
       rethrow;
     }
